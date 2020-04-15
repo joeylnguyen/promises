@@ -17,27 +17,51 @@ var pluck = require('./promiseConstructor.js');
 var fetchProfileAndWriteToFile = function(readFilePath, writeFilePath) {
   // TODO
   return pluck.pluckFirstLineFromFileAsync(readFilePath)
-    .then(user => {
-      if (!user) {
-        throw new Error(`Could not read file: ${readFilePath}`);
-      } else {
-        return user;
-      }
-    })
-    .then(user => {
-      return git.getGitHubProfileAsync(user);
-    })
+    .then(git.getGitHubProfileAsync)
     .then(profile => {
-      return new Promise((resolve, reject) => {
-        fs.writeFile(writeFilePath, JSON.stringify(profile), (err, res) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(res);
-          }
-        });
-      });
+      var writeFileAsync = Promise.promisify(fs.writeFile);
+
+      writeFileAsync(writeFilePath, JSON.stringify(profile));
     });
+
+
+  // return pluck.pluckFirstLineFromFileAsync(readFilePath)
+  //   .then(git.getGitHubProfileAsync)
+  //   .then(profile => {
+  //     return new Promise((resolve, reject) => {
+  //       fs.writeFile(writeFilePath, JSON.stringify(profile), (err, res) => {
+  //         if (err) {
+  //           reject(err);
+  //         } else {
+  //           resolve(res);
+  //         }
+  //       });
+  //     });
+  //   });
+
+
+  // return pluck.pluckFirstLineFromFileAsync(readFilePath)
+  //   .then(user => {
+  //     if (!user) {
+  //       throw new Error(`Could not read file: ${readFilePath}`);
+  //     } else {
+  //       return user;
+  //     }
+  //   })
+  //   .then(user => {
+  //     return git.getGitHubProfileAsync(user);
+  //   })
+  //   .then(profile => {
+  //     return new Promise((resolve, reject) => {
+  //       fs.writeFile(writeFilePath, JSON.stringify(profile), (err, res) => {
+  //         if (err) {
+  //           reject(err);
+  //         } else {
+  //           resolve(res);
+  //         }
+  //       });
+  //     });
+  //   });
 };
 
 // Export these functions so we can test them
